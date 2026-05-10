@@ -1,0 +1,1 @@
+export default function AdminHome(){return <section className='space-y-4'><h1 className='text-3xl font-bold'>Dashboard</h1><div className='grid md:grid-cols-4 gap-4'>{['Revenue','Orders','Customers','Gift Boxes'].map(c=><div key={c} className='rounded-xl border p-4'>{c}</div>)}</div></section>}
