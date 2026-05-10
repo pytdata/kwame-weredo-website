@@ -1,0 +1,1 @@
+export default function AdminLayout({children}:{children:React.ReactNode}){return <div className='min-h-screen grid md:grid-cols-[240px_1fr]'><aside className='border-r p-4'>Admin Portal</aside><main className='p-6'>{children}</main></div>}

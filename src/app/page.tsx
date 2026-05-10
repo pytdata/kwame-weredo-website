@@ -1,0 +1,2 @@
+import { PageShell } from '@/components/public/page-shell';
+export default function Home(){return <PageShell title='Trusted FMCG distribution partner in Ghana' desc='Quality household, food, beverage, and personal care products for wholesale and retail supply.'><section className='grid gap-4 md:grid-cols-3'>{['Fast ordering','Reliable delivery','Gift packages'].map(x=><div key={x} className='rounded-xl border p-4 shadow-sm'>{x}</div>)}</section></PageShell>}
