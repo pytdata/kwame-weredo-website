@@ -1,26 +1,207 @@
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+generator client {
+  provider = "prisma-client-js"
+}
 
-enum UserRole { super_admin admin sales_manager content_manager customer }
-enum PaymentStatus { pending paid failed abandoned refunded }
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-model User { id String @id @default(cuid()) email String @unique passwordHash String name String phone String? role UserRole @default(customer) emailVerified Boolean @default(false) createdAt DateTime @default(now()) customerProfile CustomerProfile? orders Order[] otpTokens OtpToken[] }
-model CustomerProfile { id String @id @default(cuid()) userId String @unique user User @relation(fields:[userId], references:[id]) addresses Address[] }
-model Address { id String @id @default(cuid()) customerProfileId String customerProfile CustomerProfile @relation(fields:[customerProfileId], references:[id]) line1 String city String region String country String @default("Ghana") }
-model Category { id String @id @default(cuid()) name String @unique slug String @unique products Product[] }
-model Brand { id String @id @default(cuid()) name String @unique slug String @unique products Product[] }
-model Product { id String @id @default(cuid()) name String slug String @unique description String price Decimal @db.Decimal(10,2) inStock Boolean @default(true) categoryId String brandId String? category Category @relation(fields:[categoryId],references:[id]) brand Brand? @relation(fields:[brandId],references:[id]) images ProductImage[] variants ProductVariant[] }
-model ProductImage { id String @id @default(cuid()) productId String url String alt String product Product @relation(fields:[productId],references:[id]) }
-model ProductVariant { id String @id @default(cuid()) productId String name String value String extraPrice Decimal? @db.Decimal(10,2) product Product @relation(fields:[productId],references:[id]) }
-model Order { id String @id @default(cuid()) userId String? user User? @relation(fields:[userId],references:[id]) status String @default("pending") total Decimal @db.Decimal(10,2) paymentStatus PaymentStatus @default(pending) items OrderItem[] payments Payment[] customGiftBox CustomGiftBox? }
-model OrderItem { id String @id @default(cuid()) orderId String productId String quantity Int unitPrice Decimal @db.Decimal(10,2) order Order @relation(fields:[orderId],references:[id]) }
-model Payment { id String @id @default(cuid()) orderId String order Order @relation(fields:[orderId],references:[id]) reference String @unique provider String @default("paystack") status PaymentStatus @default(pending) verificationPayload Json? }
-model Coupon { id String @id @default(cuid()) code String @unique percentage Int? active Boolean @default(true) }
-model GiftBoxTheme { id String @id @default(cuid()) name String description String? basePrice Decimal @db.Decimal(10,2) }
-model GiftBox { id String @id @default(cuid()) title String slug String @unique description String price Decimal @db.Decimal(10,2) published Boolean @default(false) items GiftBoxItem[] }
-model GiftBoxItem { id String @id @default(cuid()) giftBoxId String productId String qty Int giftBox GiftBox @relation(fields:[giftBoxId],references:[id]) }
-model CustomGiftBox { id String @id @default(cuid()) orderId String @unique order Order @relation(fields:[orderId],references:[id]) recipientName String message String? occasion String? items CustomGiftBoxItem[] }
-model CustomGiftBoxItem { id String @id @default(cuid()) customGiftBoxId String productId String qty Int customGiftBox CustomGiftBox @relation(fields:[customGiftBoxId],references:[id]) }
-model ContactInquiry { id String @id @default(cuid()) name String email String message String createdAt DateTime @default(now()) }
-model WholesaleInquiry { id String @id @default(cuid()) company String name String email String message String createdAt DateTime @default(now()) }
-model OtpToken { id String @id @default(cuid()) userId String user User @relation(fields:[userId],references:[id]) tokenHash String expiresAt DateTime }
+enum UserRole {
+  super_admin
+  admin
+  sales_manager
+  content_manager
+  customer
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  abandoned
+  refunded
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  passwordHash    String
+  name            String
+  phone           String?
+  role            UserRole         @default(customer)
+  emailVerified   Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  customerProfile CustomerProfile?
+  orders          Order[]
+  otpTokens       OtpToken[]
+}
+
+model CustomerProfile {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id])
+  addresses Address[]
+}
+
+model Address {
+  id                String          @id @default(cuid())
+  customerProfileId String
+  customerProfile   CustomerProfile @relation(fields: [customerProfileId], references: [id])
+  line1             String
+  city              String
+  region            String
+  country           String          @default("Ghana")
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+}
+
+model Brand {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  slug        String           @unique
+  description String
+  price       Decimal          @db.Decimal(10, 2)
+  inStock     Boolean          @default(true)
+  categoryId  String
+  brandId     String?
+  category    Category         @relation(fields: [categoryId], references: [id])
+  brand       Brand?           @relation(fields: [brandId], references: [id])
+  images      ProductImage[]
+  variants    ProductVariant[]
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  alt       String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  name       String
+  value      String
+  extraPrice Decimal? @db.Decimal(10, 2)
+  product    Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id            String         @id @default(cuid())
+  userId        String?
+  user          User?          @relation(fields: [userId], references: [id])
+  status        String         @default("pending")
+  total         Decimal        @db.Decimal(10, 2)
+  paymentStatus PaymentStatus  @default(pending)
+  items         OrderItem[]
+  payments      Payment[]
+  customGiftBox CustomGiftBox?
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  order     Order   @relation(fields: [orderId], references: [id])
+}
+
+model Payment {
+  id                  String        @id @default(cuid())
+  orderId             String
+  order               Order         @relation(fields: [orderId], references: [id])
+  reference           String        @unique
+  provider            String        @default("paystack")
+  status              PaymentStatus @default(pending)
+  verificationPayload Json?
+}
+
+model Coupon {
+  id         String  @id @default(cuid())
+  code       String  @unique
+  percentage Int?
+  active     Boolean @default(true)
+}
+
+model GiftBoxTheme {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  basePrice   Decimal  @db.Decimal(10, 2)
+}
+
+model GiftBox {
+  id          String       @id @default(cuid())
+  title       String
+  slug        String       @unique
+  description String
+  price       Decimal      @db.Decimal(10, 2)
+  published   Boolean      @default(false)
+  items       GiftBoxItem[]
+}
+
+model GiftBoxItem {
+  id        String  @id @default(cuid())
+  giftBoxId String
+  productId String
+  qty       Int
+  giftBox   GiftBox @relation(fields: [giftBoxId], references: [id])
+}
+
+model CustomGiftBox {
+  id            String              @id @default(cuid())
+  orderId       String              @unique
+  order         Order               @relation(fields: [orderId], references: [id])
+  recipientName String
+  message       String?
+  occasion      String?
+  items         CustomGiftBoxItem[]
+}
+
+model CustomGiftBoxItem {
+  id              String        @id @default(cuid())
+  customGiftBoxId String
+  productId       String
+  qty             Int
+  customGiftBox   CustomGiftBox @relation(fields: [customGiftBoxId], references: [id])
+}
+
+model ContactInquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model WholesaleInquiry {
+  id        String   @id @default(cuid())
+  company   String
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model OtpToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tokenHash String
+  expiresAt DateTime
+}
